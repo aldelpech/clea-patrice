@@ -13,7 +13,8 @@
 
  
 add_action( 'wp_loaded', 'clea_patrice_show_img_cat');
-
+add_action( 'init', 'clea_patrice_remove_storefront_header_search' );
+add_action( 'storefront_header', 'clea_patrice_storefront_header_content', 40 );
 
 /***************************************************
 * * show product categories for images
@@ -38,3 +39,32 @@ function clea_patrice_show_img_cat() {
     }
 	
 }	
+
+
+/***************************************************
+* * remove search bar
+
+* http://www.pootlepress.com/2015/02/21-tips-tricks-and-css-tweaks-for-woothemes-storefront/
+* #12 tip
+***************************************************/
+
+function clea_patrice_remove_storefront_header_search() {
+	remove_action( 'storefront_header', 'storefront_product_search', 	40 );
+}
+
+
+/***************************************************
+* add text to the header
+
+* https://docs.woothemes.com/document/add-static-content-to-the-storefront-header/
+
+***************************************************/
+
+function clea_patrice_storefront_header_content() { ?>
+	<div class="clea-adresse">
+		<p>Vous avez une question ? </p> 
+		<p><em>Contactez-moi (Patrice Poiraud) :</em></p> 
+		<p> <strong>06 84 32 51 31</strong> ou <strong><?php echo antispambot('graph@bwatbase.com'); ?></strong></p> 
+	</div>
+	<?php
+}

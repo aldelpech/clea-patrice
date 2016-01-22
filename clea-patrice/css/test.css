@@ -18,3 +18,32 @@
 	display: inline-block;
 	color: #666666;
 }
+
+.clea-adresse {
+    float: right;
+    text-align: right;
+	max-width: 50%;
+	margin-right: -4.874em;
+}
+
+.clea-adresse p {
+    margin-bottom: 0;
+}
+
+#post-11 ul.products li.product .price {
+    display: none;
+}
+
+#post-11 .soldout {
+    position: absolute;
+    top: .618em;
+    right: 1px;
+    padding: .53em .857em;
+    background: #cecece;
+    color: #1a1a1a;
+    font-style: oblique;
+    font-weight: 700;
+    -ms-transform: rotate(20deg);
+    -webkit-transform: rotate(20deg);
+    transform: rotate(20deg);
+}

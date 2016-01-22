@@ -15,7 +15,7 @@
  * Plugin Name: 	ALD fonctions pour Patrice WooCommerce
  * Plugin URI: 		http://knowledge.parcours-performance.com/creer-plugin-wordpress-de-fonctionnalites-utiles/
  * Description: 	pour modifier le thème enfant boutique du thème storefront	
- * Version: 		0.3.0
+ * Version: 		0.4.0
  * Author: 			Anne-Laure Delpech
  * Author URI: 		http://parcours-performance.com/anne-laure-delpech/#ald
  * License: 		GPL2.0+

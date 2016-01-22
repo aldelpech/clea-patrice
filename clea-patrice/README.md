@@ -12,9 +12,14 @@ Tested up to: 4.4
 == NOTES ==
 * 
 
+= Version 0.4 =
+* The search zone in the header is removed
+* a zone is in the header with fixed content (phone number and encoded email)
+* the shop shows only instock products, but other queries may show sold out products...
+* the gallery shows all sold out products without the price, with a "vendu" / "sold" badge
+
 = Version 0.3 =
 * adds a shortcode for a gallery with all sold out products
-
 
 = Version 0.2 =
 * loads a css file for adjustments to the child theme
