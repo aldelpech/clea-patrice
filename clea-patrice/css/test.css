@@ -1,0 +1,20 @@
+@charset "UTF-8";
+
+/* 
+   css test du plugin Clea-Patrice-add-functions  
+*/
+
+/*****
+* Navigation secondaire
+*****/
+
+@media screen and (min-width: 768px) {
+	.main-navigation ul li a, ul.menu li a {
+    color: #cecece!important;
+	}
+}
+
+.site-title a {
+	display: inline-block;
+	color: #666666;
+}
