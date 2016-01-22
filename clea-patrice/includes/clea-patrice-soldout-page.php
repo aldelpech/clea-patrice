@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * a shortcode to display sold out products
+ * 
  *
  *
  * @link       	http://parcours-performance.com/anne-laure-delpech/#ald
@@ -11,21 +11,110 @@
  * @subpackage clea-patrice-add-functions/includes
  */
 
-
  
+add_action( 'woocommerce_product_query', 'so_20990199_product_query' );
+
+function so_20990199_product_query( $q ){
+
+    $product_ids_on_sale = clea_patrice_get_in_stock_product_ids();
+
+    $meta_query = WC()->query->get_meta_query();
+
+    $q->set( 'post__in', array_merge( array( 0 ), $product_ids_on_sale ) );
+
+} 
+ 
+function clea_patrice_get_in_stock_product_ids() {
+
 /*
+	// Load from cache
+	$featured_product_ids = get_transient( 'wc_featured_products' );
+
+	// Valid cache found
+	if ( false !== $featured_product_ids )
+		return $featured_product_ids;
+*/
+	$in_stock = get_posts( array(
+		'post_type'      => array( 'product', 'product_variation' ),
+		'posts_per_page' => -1,
+		'post_status'    => 'publish',
+		'meta_query'     => array(
+			array(
+				'key' 		=> '_visibility',
+				'value' 	=> array('catalog', 'visible'),
+				'compare' 	=> 'IN'
+			),
+ 			array(
+				'key' => '_stock_status',
+				'value' => 'instock',
+				'compare' => '='
+			)
+		),
+		'fields' => 'id=>parent'
+	) );
+
+	$product_ids          = array_keys( $in_stock );
+	$parent_ids           = array_values( array_filter( $in_stock ) );
+	$in_stock_product_ids = array_unique( array_merge( $product_ids, $parent_ids ) );
+
+	// set_transient( 'wc_featured_products', $featured_product_ids, DAY_IN_SECONDS * 30 );
+
+	return $in_stock_product_ids;
+} 
+ 
+/* 
+*
+* Do not display sold out product in shop
+*
+* source http://www.remicorson.com/modifying-the-current-query-with-pre_get_posts/
+*/
+
+
+	// add_action( 'pre_get_posts', 'clea_patrice_no_sold_out_in_shop' );
+	// add_action( 'woocommerce_product_query', 'clea_patrice_no_sold_out_in_shop' );
+
+
+
+
+
+function clea_patrice_no_sold_out_in_shop( $query ) {
+ 
+// see https://docs.woothemes.com/document/exclude-a-category-from-the-shop-page/
+
+	if ( ! $query->is_main_query() ) {
+		return ;
+	}
+
+	if ( $query->is_page() && 'page' == get_option( 'show_on_front' ) && $query->get('page_id') == woocommerce_get_page_id('shop') ) {
+ 
+		$query->set('meta_key', '_stock_status');
+		$query->set('meta_value', 'instock');
+ 
+	} else {
+		echo "this is not it !!!!!" ;
+	}
+ 
+}
+ 
+
+/*
+* a shortcode to display sold out products
+* 
 * source snippet #20 Display onsale products catalog shortcode
 * http://www.wpexplorer.com/best-woocommerce-snippets/
 */
 
 
-function clea_patrice_sale_products( $atts ) {
+function clea_patrice_sold_out_shortcode( $atts ) {
+
+	// allow sold out products in the query...
+	remove_action( 'pre_get_posts', 'clea_patrice_no_sold_out_in_shop' );
 
     global $woocommerce_loop;
 
     extract(shortcode_atts(array(
         'per_page'  => '12',
-        'columns'   => '4',
+        'columns'   => '3',
         'orderby' => 'date',
         'order' => 'desc'
     ), $atts));
@@ -40,7 +129,12 @@ function clea_patrice_sale_products( $atts ) {
         'orderby' => $orderby,
         'order' => $order,
         'meta_query' => array(
- 			array(
+			array(
+				'key' 		=> '_visibility',
+				'value' 	=> array('catalog', 'visible'),
+				'compare' 	=> 'IN'
+			),
+			array(
 				'key' => '_stock_status',
 				'value' => 'outofstock',
 				'compare' => '='
@@ -63,66 +157,9 @@ function clea_patrice_sale_products( $atts ) {
 		do_action( 'woocommerce_after_shop_loop' );
 	// Return buffered contents
     return '<ul class="products">' . ob_get_clean() . '</ul>';
-
-/*
-	ob_start();
-
-	$products = new WP_Query( $args );
-
-	if ( $products->have_posts() ) :
-
-		while ( $products->have_posts() ) : $products->the_post(); 
-
-			woocommerce_get_template( 'archive-product.php' );
-
-		endwhile; // end of the loop.
-
-	endif;
-
-	wp_reset_postdata();
-
-	return '<div class="vendus"><h4>début...</h4>' . ob_get_clean() . '<h4>...fin</h4></div>';	
-*/	
-
-/*    query_posts($args);
-    ob_start();
-    // woocommerce_get_template_part( 'loop', 'shop' );
-    wc_get_template( 'content', 'product' );
-	wp_reset_query();
-
-    // return ob_get_clean();
-	return '<div class="vendus">' . ob_get_clean() . '</div>';
-*/
-
-/*
-ob_start();
-
-    $products = new WP_Query( $args );
-
-    $woocommerce_loop['columns'] = $columns;
-
-    if ( $products->have_posts() ) : ?>     
-
-        <?php woocommerce_product_loop_start(); ?>
-
-            <?php while ( $products->have_posts() ) : $products->the_post(); ?>
-
-                <?php wc_get_template( 'content', 'product' );  ?>
-
-            <?php endwhile; // end of the loop. ?>
-
-        <?php woocommerce_product_loop_end(); ?>
-
-    <?php endif;
-
-    wp_reset_postdata();
-
-    return '<div class="woocommerce">' . ob_get_clean() . '</div>';
-
-*/
 }
 
-add_shortcode('produits_vendus', 'clea_patrice_sale_products');
+add_shortcode('produits_vendus', 'clea_patrice_sold_out_shortcode');
 
 
 add_action( 'woocommerce_before_shop_loop_item_title', 'clea_patrice_soldout_badge' );
@@ -132,46 +169,16 @@ function clea_patrice_soldout_badge() {
     global $product;
  
     if ( !$product->is_in_stock() ) {
-        echo '<span class="soldout">SOLD OUT</span>';
+        echo '<span class="soldout">VENDU</span>';
     }
 } 
 
-
-/**
- * Shortcode advert.
- * 
- * input:   [advert]
- * extended: [advert h2="…" h3="" text="…" klasse="…"]
- *
- * @return void
- */
-function shortcode_advert_callback( $atts ) {
-	
-	// Parse forwarded parameters against defaults.
-	$args = shortcode_atts( 
-		array(
-			'h2'     => 'A new collection has arrived in the shop.',
-			'h3'     => 'Old collection items are now up to 50% reduced!',
-			'text'     => 'advert text here',
-			'class'     => 'my-advert',
-		),
-		$atts
-	);
-	
-	// HTML output with placeholders for parameters.
-	$output = sprintf( 
-		'<div class="%4$s">
-			<h2>%1$s</h2>
-			<h3>%2$S</h3>
-			<p>%3$s</p>
-		</div>',
-		$args[ 'h2' ],
-		$args[ 'h3' ],
-		$args[ 'text' ],
-		$args[ 'klasse' ]
-	);
-	
-	return $output; 
+add_filter('woocommerce_stock_html', 'change_stock_message', 10, 2);
+function change_stock_message($message, $stock_status) {
+    if ($stock_status == "Produit épuisé") {
+        $message = '<p class="stock out-of-stock">Vendu</p>';    
+    } else {
+        $message = '<p class="stock in-stock">Disponible</p>';           
+    }
+    return $message;
 }
-add_shortcode( 'advert', 'shortcode_advert_callback' );
-?>
